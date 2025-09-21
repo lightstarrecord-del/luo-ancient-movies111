@@ -25,6 +25,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-# Secrets
-*.json
+# Secrets (be specific)
+# ignore firebase service account keys and other credential JSON files
+*firebase-adminsdk-*.json
+*fbsvc*.json
 .env.local
