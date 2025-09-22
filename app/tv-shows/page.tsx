@@ -1,5 +1,15 @@
 import { Navbar } from "@/components/navbar"
 import { MovieSection } from "@/components/movie-section"
+import ALLOWED_CATEGORIES from '@/lib/categories'
+
+const FRIENDLY_LABELS: Record<string, string> = {
+  korean: "K-Drama",
+  indian: "C-Drama",
+  action: "Western Series",
+  cartoon: "Anime Series",
+  nollywood: "Nollywood",
+  war: "War",
+}
 
 export default function TVShowsPage() {
   return (
@@ -11,10 +21,9 @@ export default function TVShowsPage() {
 
         <div className="space-y-8">
           <MovieSection title="Popular TV Shows" type="series" />
-          <MovieSection title="K-Drama" type="series" categoryKey="korean" />
-          <MovieSection title="C-Drama" type="series" categoryKey="indian" />
-          <MovieSection title="Western Series" type="series" categoryKey="action" />
-          <MovieSection title="Anime Series" type="series" categoryKey="cartoon" />
+          {ALLOWED_CATEGORIES.map((cat) => (
+            <MovieSection key={cat} title={FRIENDLY_LABELS[cat] ?? cat} type="series" categoryKey={cat} />
+          ))}
         </div>
       </div>
     </div>

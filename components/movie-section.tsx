@@ -5,6 +5,7 @@ import { MovieCard } from "@/components/movie-card"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { db } from "@/lib/realtime-db"
+import ALLOWED_CATEGORIES from "@/lib/categories"
 import { ref, onValue } from "firebase/database"
 
 interface MovieSectionProps {
@@ -38,7 +39,8 @@ export function MovieSection({ title, type = "movie", categoryKey }: MovieSectio
 
       let list = Object.entries(data).map(([id, value]) => ({ id, ...(value as any) }))
 
-      // Determine the filter key: prefer explicit categoryKey, otherwise derive from title
+      // Determine the filter key: prefer explicit categoryKey, otherwise derive from title.
+      // Try to match any admin-defined category substring first (handles messy titles like 'the institudeWar').
       const raw = (categoryKey ?? title).toString().trim()
       const lower = raw.toLowerCase()
 
@@ -51,10 +53,18 @@ export function MovieSection({ title, type = "movie", categoryKey }: MovieSectio
         })
         list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
       } else {
-        // Strip common suffixes like ' movies', ' movie', ' series'
-        let key = lower.replace(/\bmovies\b|\bmovie\b|\bseries\b/gi, "").trim()
-        // If stripping leaves empty, fall back to lower
+        // Prefer an allowed admin category if it appears in the title
+        const matchedAllowed = ALLOWED_CATEGORIES.find((cat) => lower.includes(cat))
+        let key = matchedAllowed ?? ""
+
+        if (!key) {
+          // Strip common suffixes like ' movies', ' movie', ' series' and non-letter characters
+          key = lower.replace(/\bmovies\b|\bmovie\b|\bseries\b/gi, "").replace(/[^a-z\s-]/gi, "").trim()
+        }
+
+        // If still empty, fall back to using the raw lower title
         if (!key) key = lower
+
         list = list.filter((item) => ((item.category || "") as string).toLowerCase() === key)
       }
 
@@ -79,14 +89,9 @@ export function MovieSection({ title, type = "movie", categoryKey }: MovieSectio
       ) : (
   <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-3 gap-y-5">
           {items.map((item) => (
-            <Link key={item.id} href={`/play/${item.id}`} className="flex flex-col items-center group">
-              <div className="w-[150px] h-[225px] bg-gray-800 rounded overflow-hidden flex items-center justify-center group-hover:shadow-lg transition">
-                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-              </div>
-              <div className="mt-2 w-full text-center">
-                <span className="block text-sm text-white truncate group-hover:text-yellow-400">{item.title}</span>
-              </div>
-            </Link>
+            <div key={item.id} className="flex flex-col items-center group">
+              <MovieCard id={item.id} title={item.title} image={item.image} category={item.category} />
+            </div>
           ))}
         </div>
       )}

@@ -15,7 +15,6 @@ export default function PlayPage() {
   const [related, setRelated] = useState<any[]>([]);
   const [like, setLike] = useState(0);
   const [rate, setRate] = useState(0);
-  // Fetch like/rate from DB
   useEffect(() => {
     if (!id) return;
     const likeRef = ref(db, `stats/${id}/like`);
@@ -25,26 +24,53 @@ export default function PlayPage() {
     return () => { unsubLike(); unsubRate(); };
   }, [id]);
 
-  // Record like
   const handleLike = () => {
     const likeRef = ref(db, `stats/${id}/like`);
     runTransaction(likeRef, (curr) => (curr || 0) + 1);
   };
-  // Record rate
   const handleRate = () => {
     const rateRef = ref(db, `stats/${id}/rate`);
     runTransaction(rateRef, (curr) => (curr || 0) + 1);
   };
-  // Record download
   const handleDownload = () => {
     const downloadRef = ref(db, `stats/${id}/download`);
     runTransaction(downloadRef, (curr) => (curr || 0) + 1);
   };
   const [isSeries, setIsSeries] = useState(false);
   const [episodes, setEpisodes] = useState<any[]>([]);
+  const [selectedEpisode, setSelectedEpisode] = useState<any | null>(null);
+  const currentSrc = selectedEpisode ? selectedEpisode.playLink : item?.playLink;
+
+  // Reset selected episode when switching to a different item
+  useEffect(() => {
+    setSelectedEpisode(null);
+  }, [id]);
+
+  // When episodes load for a series, auto-select Episode 1 (best-effort)
+  useEffect(() => {
+    if (!isSeries) return;
+    if (!episodes || episodes.length === 0) return;
+    if (selectedEpisode) return; // don't override manual selection
+
+    // Try common fields for episode number
+    const byNumeric = episodes.find((e) => e && (e.episodeNumber === 1 || e.episode === 1 || e.ep === 1));
+    if (byNumeric) {
+      setSelectedEpisode(byNumeric);
+      return;
+    }
+
+    // Try to find Episode 1 by title heuristics
+    const byTitle = episodes.find((e) => e && e.title && /episode\s*1|ep\.?\s*1|e\s*1/i.test(e.title));
+    if (byTitle) {
+      setSelectedEpisode(byTitle);
+      return;
+    }
+
+    // Fallback to the first episode in the array
+    setSelectedEpisode(episodes[0]);
+  }, [isSeries, episodes, selectedEpisode]);
 
   useEffect(() => {
-    // Try to fetch from movies, then series
     const movieRef = ref(db, `movies/${id}`);
     const unsubMovie = onValue(movieRef, (snap) => {
       if (snap.exists()) {
@@ -78,7 +104,6 @@ export default function PlayPage() {
   }, [id]);
 
   useEffect(() => {
-    // Fetch related movies
     const moviesRef = ref(db, "movies");
     onValue(moviesRef, (snap) => {
       const data = snap.val();
@@ -108,10 +133,10 @@ export default function PlayPage() {
   return (
     <div className="min-h-screen bg-black text-white p-2 md:p-4">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-6">
-        {/* Player left, Related right */}
+        
         <div className="flex-1 min-w-0">
-          {item.playLink && <Player src={item.playLink} />}
-          {/* Action buttons below player */}
+          <div id="series-player">{currentSrc && <Player src={currentSrc} />}</div>
+          
           <div className="flex flex-wrap gap-2 mb-4 justify-center">
             {item.downloadLink && (
               <a
@@ -128,25 +153,29 @@ export default function PlayPage() {
             <button className="bg-green-500 text-white px-4 py-2 rounded font-semibold" onClick={handleLike}>Like ({like})</button>
             <button className="bg-purple-500 text-white px-4 py-2 rounded font-semibold" onClick={handleRate}>Rate ({rate})</button>
           </div>
-          {/* Comment box */}
+          
           <div className="mb-8 max-w-2xl mx-auto">
             <h3 className="text-lg font-bold mb-2 text-yellow-300">Comments</h3>
             <textarea className="w-full p-2 rounded bg-gray-900 text-white border border-yellow-400 mb-2" placeholder="Add a comment..." rows={2} disabled />
             <button className="bg-yellow-400 text-black px-4 py-2 rounded font-semibold opacity-60 cursor-not-allowed" disabled>Post (coming soon)</button>
           </div>
-          {/* Episodes for series */}
+          
           {isSeries && (
             <div className="mb-6">
               <h2 className="text-xl font-bold mb-2 text-yellow-300">Episodes</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {episodes.map((ep) => (
-                  <div key={ep.id} className="bg-gray-800 rounded p-2 flex flex-col items-center">
-                    <img src={ep.image || item.image} alt={ep.title} className="w-24 h-24 object-cover rounded mb-2" />
-                    <div className="font-semibold text-white text-center">{ep.title}</div>
-                    <a href={ep.playLink} target="_blank" rel="noopener" className="mt-1 bg-yellow-400 text-black px-2 py-1 rounded text-xs">Play</a>
-                    {ep.downloadLink && <a href={ep.downloadLink} target="_blank" rel="noopener" className="mt-1 bg-red-500 text-white px-2 py-1 rounded text-xs">Download</a>}
-                  </div>
-                ))}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                {episodes.map((ep, idx) => {
+                  const num = ep.episodeNumber || ep.episode || ep.ep || (idx + 1);
+                  return (
+                    <div key={ep.id} className="relative bg-gray-800 rounded overflow-hidden cursor-pointer" onClick={() => setSelectedEpisode(ep)}>
+                      <img src={ep.image || item.image} alt={ep.title} className="w-full h-20 object-cover" />
+                      <div className="p-2">
+                        <div className="text-xs text-white line-clamp-1">{ep.title}</div>
+                      </div>
+                      <div className="absolute top-2 left-2 bg-yellow-400 text-black text-[10px] font-semibold px-2 py-1 rounded">{num}</div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}

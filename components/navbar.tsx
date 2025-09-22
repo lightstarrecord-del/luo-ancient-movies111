@@ -91,9 +91,11 @@ export function Navbar() {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              <Button className="bg-gradient-to-r from-yellow-400 to-red-500 hover:from-yellow-500 hover:to-red-600 text-black font-semibold">
-                📱 Download App
-              </Button>
+              <Link href="/download-app">
+                <Button className="bg-gradient-to-r from-yellow-400 to-red-500 hover:from-yellow-500 hover:to-red-600 text-black font-semibold">
+                  📱 Download App
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile menu button */}
@@ -145,9 +147,11 @@ export function Navbar() {
                     className="pl-10 bg-black/40 border-gray-600 text-white placeholder-gray-400"
                   />
                 </div>
-                <Button className="w-full bg-gradient-to-r from-yellow-400 to-red-500 hover:from-yellow-500 hover:to-red-600 text-black font-semibold">
-                  📱 Download App
-                </Button>
+                <Link href="/download-app">
+                  <Button className="w-full bg-gradient-to-r from-yellow-400 to-red-500 hover:from-yellow-500 hover:to-red-600 text-black font-semibold">
+                    📱 Download App
+                  </Button>
+                </Link>
 
                 {/* Auth links for mobile */}
                 <div className="pt-4 border-t border-gray-800/40">
