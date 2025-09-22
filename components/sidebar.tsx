@@ -76,7 +76,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        <a href="/download-app" className="block">
+        <a href="https://docs.google.com/uc?export=download&id=11_f6m5eNcJieLRmdZ6tuTk6m7aAyJneh" target="_blank" rel="noopener noreferrer" className="block">
           <Button className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold">
             📱 Download App
           </Button>

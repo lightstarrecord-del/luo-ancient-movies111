@@ -6,7 +6,7 @@ export default function DownloadAppPage() {
       <div className="max-w-2xl w-full bg-gray-900 rounded-lg p-6 text-center">
         <h1 className="text-2xl font-bold text-yellow-400 mb-4">Download LUO ANCIENT MOVIES App</h1>
         <p className="text-gray-300 mb-4">Thank you for downloading. Click the button below to download the app package. Install on your device following the instructions.</p>
-        <a href="/luo-ancient-app.zip" download className="inline-block bg-yellow-400 text-black font-semibold px-6 py-3 rounded hover:bg-yellow-500">Download App (ZIP)</a>
+  <a href="https://docs.google.com/uc?export=download&id=11_f6m5eNcJieLRmdZ6tuTk6m7aAyJneh" target="_blank" rel="noopener noreferrer" className="inline-block bg-yellow-400 text-black font-semibold px-6 py-3 rounded hover:bg-yellow-500">Download App</a>
         <div className="mt-4 text-sm text-gray-400">If you are on mobile, the file will download and you can open it with a file manager or follow installation instructions included in the ZIP.</div>
         <div className="mt-6">
           <Link href="/" className="text-blue-400 underline">Back to Home</Link>
