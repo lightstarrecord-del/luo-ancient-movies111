@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSubscription } from '@/lib/firestore-db';
 export async function GET(req: NextRequest, { params }: { params: { phone: string } }) {
