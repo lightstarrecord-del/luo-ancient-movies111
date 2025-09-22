@@ -76,9 +76,11 @@ export function Sidebar() {
           </div>
         </div>
 
-        <Button className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold">
-          📱 Download App
-        </Button>
+        <a href="/download-app" className="block">
+          <Button className="w-full mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold">
+            📱 Download App
+          </Button>
+        </a>
       </div>
     </div>
   )
