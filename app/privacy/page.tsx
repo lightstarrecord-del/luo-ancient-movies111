@@ -10,7 +10,7 @@ export default function PrivacyPage() {
 
         <div className="prose prose-invert max-w-none">
           <p className="text-gray-300 mb-6">
-            This Privacy Policy describes how MovieBox collects, uses, and protects your information when you use our
+            This Privacy Policy describes how LUO ANCIENT MOVIES collects, uses, and protects your information when you use our
             service.
           </p>
 

@@ -69,7 +69,7 @@ export function Sidebar() {
         </div>
 
         <div className="text-xs text-gray-500 space-y-1">
-          <p>moviebox.ng@mbox.ng</p>
+          <p>contact@luoancientmovies.ng</p>
           <div className="flex gap-2">
             <span>Privacy Policy</span>
             <span>User Agreement</span>

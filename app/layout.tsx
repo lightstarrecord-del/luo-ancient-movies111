@@ -7,7 +7,7 @@ import { Suspense } from "react"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "MovieBox - Stream Movies & TV Shows",
+  title: "LUO ANCIENT MOVIES - Stream Movies & TV Shows",
   description: "Watch the latest movies and TV shows online",
   generator: "v0.app",
 }
