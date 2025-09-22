@@ -7,6 +7,7 @@ import { ref, set, getDatabase } from "firebase/database";
 
 
 import { ChangeEvent } from "react";
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function UserProfile() {
   const [user, setUser] = useState<User | null>(null);
@@ -49,6 +50,28 @@ export default function UserProfile() {
       setError(err.message);
     }
     setSaving(false);
+  };
+
+  // Upload avatar file to Firebase Storage and update photoURL (preview + persisted URL)
+  const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    setError("");
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Create a temporary local preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setPhotoURL(previewUrl);
+
+    try {
+      const storage = getStorage();
+      const storagePath = `avatars/${Date.now()}_${file.name}`;
+      const imgRef = storageRef(storage, storagePath);
+      await uploadBytes(imgRef, file);
+      const downloadUrl = await getDownloadURL(imgRef);
+      setPhotoURL(downloadUrl);
+    } catch (err: any) {
+      setError(err?.message || "Failed to upload avatar");
+    }
   };
 
   if (!user) return null;
