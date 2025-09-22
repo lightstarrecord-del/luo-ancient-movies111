@@ -148,6 +148,40 @@ export function Navbar() {
                 <Button className="w-full bg-gradient-to-r from-yellow-400 to-red-500 hover:from-yellow-500 hover:to-red-600 text-black font-semibold">
                   📱 Download App
                 </Button>
+
+                {/* Auth links for mobile */}
+                <div className="pt-4 border-t border-gray-800/40">
+                  {user ? (
+                    <div className="space-y-2">
+                      {isAdmin && (
+                        <Link
+                          href="/admin/dashboard"
+                          className="block text-yellow-400 font-bold px-3 py-2 rounded-md text-base"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
+                      <Link href="/profile" className="flex items-center px-3 py-2" onClick={() => setIsMobileMenuOpen(false)}>
+                        <img
+                          src={user.photoURL || "/placeholder-user.jpg"}
+                          alt="Avatar"
+                          className="w-8 h-8 rounded-full border-2 border-yellow-400 object-cover mr-3"
+                          onError={e => (e.currentTarget.src = "/placeholder-user.jpg")}
+                        />
+                        <span className="text-gray-300">Profile</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/login"
+                      className="block text-gray-300 hover:text-yellow-400 px-3 py-2 rounded-md text-base font-medium"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                  )}
+                </div>
               </div>
             </div>
           </div>
