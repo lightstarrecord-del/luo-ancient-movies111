@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/realtime-db";
+import ALLOWED_CATEGORIES from '@/lib/categories';
 import { ref, onValue, push, set, remove, update } from "firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 export default function AdminMoviesPage() {
   const [movies, setMovies] = useState<any[]>([]);
-  const [form, setForm] = useState({ title: "", image: "", description: "", playLink: "", downloadLink: "", category: "action" });
-  const allowedCategories = ["action", "indian", "nollywood", "cartoon", "war", "korean"];
+  const [form, setForm] = useState({ title: "", image: "", description: "", playLink: "", downloadLink: "", category: ALLOWED_CATEGORIES[0] });
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -49,7 +49,7 @@ export default function AdminMoviesPage() {
     } else {
       await set(push(ref(db, "movies")), form);
     }
-    setForm({ title: "", image: "", description: "", playLink: "", downloadLink: "", category: allowedCategories[0] });
+  setForm({ title: "", image: "", description: "", playLink: "", downloadLink: "", category: ALLOWED_CATEGORIES[0] });
   };
   const handleEdit = (movie: any) => {
     setEditId(movie.id);
@@ -59,7 +59,7 @@ export default function AdminMoviesPage() {
       description: movie.description || "",
       playLink: movie.playLink || "",
       downloadLink: movie.downloadLink || "",
-      category: movie.category || allowedCategories[0]
+  category: movie.category || ALLOWED_CATEGORIES[0]
     });
   };
   const handleDelete = async (id: string) => {
@@ -76,14 +76,14 @@ export default function AdminMoviesPage() {
         <input name="playLink" value={form.playLink} onChange={handleChange} placeholder="Play Link (URL)" className="w-full p-2 rounded bg-black text-white border border-yellow-400" />
         <input name="downloadLink" value={form.downloadLink} onChange={handleChange} placeholder="Download Link (URL)" className="w-full p-2 rounded bg-black text-white border border-yellow-400" />
         <select name="category" value={form.category} onChange={handleChange} className="w-full p-2 rounded bg-black text-white border border-yellow-400" required>
-          {allowedCategories.map((cat) => (
+          {ALLOWED_CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
           ))}
         </select>
         <button type="submit" className="w-full bg-gradient-to-r from-yellow-400 to-red-500 hover:from-yellow-500 hover:to-red-600 text-black font-semibold py-2 rounded">
           {editId ? "Update Movie" : "Add Movie"}
         </button>
-  {editId && <button type="button" onClick={() => { setEditId(null); setForm({ title: "", image: "", description: "", playLink: "", downloadLink: "", category: allowedCategories[0] }); }} className="w-full mt-2 bg-gray-700 text-white py-2 rounded">Cancel Edit</button>}
+  {editId && <button type="button" onClick={() => { setEditId(null); setForm({ title: "", image: "", description: "", playLink: "", downloadLink: "", category: ALLOWED_CATEGORIES[0] }); }} className="w-full mt-2 bg-gray-700 text-white py-2 rounded">Cancel Edit</button>}
       </form>
       {loading ? <div>Loading...</div> : (
         <div className="space-y-4">
