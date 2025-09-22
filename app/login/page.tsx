@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 
 import { useRouter } from "next/navigation"
-import { getAuth, signInWithPopup, GoogleAuthProvider, updateProfile } from "firebase/auth"
+import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, updateProfile } from "firebase/auth"
 import { app } from "@/lib/firebase"
 import { useCallback } from "react"
 import { FcGoogle } from "react-icons/fc"
@@ -37,7 +37,22 @@ export default function LoginPage() {
   const handleGoogleLogin = useCallback(async () => {
     setIsLoading(true)
     try {
-      const result = await signInWithPopup(auth, provider)
+      // try popup first; if that fails (popup blocked / mobile), fallback to redirect
+      let result: any = null
+      try {
+        result = await signInWithPopup(auth, provider)
+      } catch (popupErr: any) {
+        // If popup failed due to environment or was blocked, fallback to redirect
+        console.warn('signInWithPopup failed, falling back to redirect', popupErr)
+        try {
+          await signInWithRedirect(auth, provider)
+          // signInWithRedirect will navigate away; return early
+          return
+        } catch (redirectErr: any) {
+          console.error('signInWithRedirect also failed', redirectErr)
+          throw redirectErr
+        }
+      }
       if (result.user) {
         // If user has no avatar, set a generated one
         if (!result.user.photoURL) {

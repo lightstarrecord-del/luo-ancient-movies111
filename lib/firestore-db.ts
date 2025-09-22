@@ -29,3 +29,24 @@ export async function getUserSubscription(phone: string) {
 export async function savePaymentRecord(paymentId: string, data: any) {
   await db.collection('payments').doc(paymentId).set(data, { merge: true });
 }
+
+// Save a subscription record keyed by our order id (created before redirect)
+export async function saveSubscriptionByOrder(orderId: string, payload: any) {
+  await db.collection('subscriptions_by_order').doc(orderId).set(payload, { merge: true });
+}
+
+export async function getSubscriptionByOrder(orderId: string) {
+  const doc = await db.collection('subscriptions_by_order').doc(orderId).get();
+  return doc.exists ? doc.data() : null;
+}
+
+export async function updateSubscriptionByOrder(orderId: string, update: any) {
+  await db.collection('subscriptions_by_order').doc(orderId).set(update, { merge: true });
+  const doc = await db.collection('subscriptions_by_order').doc(orderId).get();
+  return doc.exists ? doc.data() : null;
+}
+
+// Save subscription by Firebase UID when available
+export async function saveUserSubscriptionByUid(uid: string, plan: string, expires: string) {
+  await db.collection('subscriptions').doc(uid).set({ plan, expires }, { merge: true });
+}

@@ -1,6 +1,6 @@
 
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,7 @@ const plans = [
 
 export default function PremiumPage() {
   const [showModal, setShowModal] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -24,6 +25,12 @@ export default function PremiumPage() {
   const [error, setError] = useState("");
 
   const handleChoose = (plan: any) => {
+    // Require login before selecting a plan
+    if (!user) {
+      // send user to login page
+      window.location.href = '/login'
+      return
+    }
     setSelectedPlan(plan);
     setShowModal(true);
     setPhone("");
@@ -31,14 +38,43 @@ export default function PremiumPage() {
     setError("");
   };
 
+  // Ensure user is authenticated (Firebase)
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { getAuth } = await import('firebase/auth');
+        const { app } = await import('@/lib/firebase');
+        const auth = getAuth(app as any);
+        const unsub = auth.onAuthStateChanged((u: any) => {
+          if (!mounted) return;
+          setUser(u || null);
+          if (!u) {
+            // redirect to login when attempting to open modal
+          }
+        });
+        return () => { mounted = false; unsub(); };
+      } catch (e) {
+        console.error('Auth not initialized', e);
+      }
+    })();
+  }, []);
+
   const handlePay = async (e: any) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
+      // require logged in user
+      if (!user) {
+        setError('You must be logged in to subscribe.');
+        setLoading(false);
+        return;
+      }
+      const idToken = await user.getIdToken();
       const res = await fetch("/api/pesapal/pay-subscription", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
         body: JSON.stringify({ planId: selectedPlan.id, phone, email }),
       });
       const data = await res.json();
