@@ -11,10 +11,10 @@ export default function TVShowsPage() {
 
         <div className="space-y-8">
           <MovieSection title="Popular TV Shows" type="series" />
-          <MovieSection title="K-Drama" type="series" />
-          <MovieSection title="C-Drama" type="series" />
-          <MovieSection title="Western Series" type="series" />
-          <MovieSection title="Anime Series" type="series" />
+          <MovieSection title="K-Drama" type="series" categoryKey="korean" />
+          <MovieSection title="C-Drama" type="series" categoryKey="indian" />
+          <MovieSection title="Western Series" type="series" categoryKey="action" />
+          <MovieSection title="Anime Series" type="series" categoryKey="cartoon" />
         </div>
       </div>
     </div>

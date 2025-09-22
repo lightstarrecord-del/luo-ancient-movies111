@@ -10,6 +10,7 @@ import { ref, onValue } from "firebase/database"
 interface MovieSectionProps {
   title: string
   type?: "movie" | "series"
+  categoryKey?: string
 }
 
 interface Movie {
@@ -19,7 +20,7 @@ interface Movie {
   [key: string]: any
 }
 
-export function MovieSection({ title, type = "movie" }: MovieSectionProps) {
+export function MovieSection({ title, type = "movie", categoryKey }: MovieSectionProps) {
   const [items, setItems] = useState<Movie[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -29,30 +30,40 @@ export function MovieSection({ title, type = "movie" }: MovieSectionProps) {
     const dbRefObj = ref(db, refPath)
     const unsubscribe = onValue(dbRefObj, (snapshot) => {
       const data = snapshot.val()
-      if (data) {
-        let list = Object.entries(data).map(([id, value]) => ({ id, ...(value as any) }))
-        // Filter for categories
-        if (title.toLowerCase() === "latest") {
-          // Show movies uploaded in last 7 days
-          const now = Date.now()
-          list = list.filter((item) => {
-            if (!item.createdAt) return false;
-            return now - item.createdAt < 7 * 24 * 60 * 60 * 1000;
-          })
-          // Sort newest first
-          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-        } else {
-          // Only show movies with matching category (case-insensitive)
-          list = list.filter((item) => (item.category || "").toLowerCase() === title.toLowerCase())
-        }
-        setItems(list)
-      } else {
+      if (!data) {
         setItems([])
+        setLoading(false)
+        return
       }
+
+      let list = Object.entries(data).map(([id, value]) => ({ id, ...(value as any) }))
+
+      // Determine the filter key: prefer explicit categoryKey, otherwise derive from title
+      const raw = (categoryKey ?? title).toString().trim()
+      const lower = raw.toLowerCase()
+
+      // Treat 'trending' or 'popular' as the 'latest' special case
+      if (lower.includes("trending") || lower.includes("popular") || lower === "latest") {
+        const now = Date.now()
+        list = list.filter((item) => {
+          if (!item.createdAt) return false
+          return now - item.createdAt < 7 * 24 * 60 * 60 * 1000
+        })
+        list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+      } else {
+        // Strip common suffixes like ' movies', ' movie', ' series'
+        let key = lower.replace(/\bmovies\b|\bmovie\b|\bseries\b/gi, "").trim()
+        // If stripping leaves empty, fall back to lower
+        if (!key) key = lower
+        list = list.filter((item) => ((item.category || "") as string).toLowerCase() === key)
+      }
+
+      setItems(list)
       setLoading(false)
     })
+
     return () => unsubscribe()
-  }, [title, type])
+  }, [title, type, categoryKey])
 
   return (
     <section className="py-8 px-4">
