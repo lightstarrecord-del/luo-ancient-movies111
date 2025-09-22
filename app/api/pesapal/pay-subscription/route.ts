@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken, PLANS, IPN_ID, BASE_URL } from '@/lib/pesapal';
 

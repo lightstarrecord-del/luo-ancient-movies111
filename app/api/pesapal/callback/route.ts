@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 // Optionally save payment record here
 export async function GET(req: NextRequest) {
